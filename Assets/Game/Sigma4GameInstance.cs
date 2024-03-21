@@ -12,6 +12,10 @@ public class Sigma4GameInstance
         _mapSize = mapSize >= 4 ? mapSize : 4;
     }
     
+    public void SelectColumn(int column)
+    {
+        Debug.Log("Gamemanager Colum " + column);
+    }
 
     // DUDE WHAT ARE WE GONNA DO WE ARE SO COOKED
 }
