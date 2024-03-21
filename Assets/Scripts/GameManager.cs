@@ -19,5 +19,6 @@ public class GameManager : MonoBehaviour
     public void SelectColumn(int column)
     {
         Debug.Log("Gamemanager Colum " + column);
+        
     }
 }
