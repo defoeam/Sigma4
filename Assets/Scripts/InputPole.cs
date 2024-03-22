@@ -6,10 +6,11 @@ public class InputPole : MonoBehaviour
 {
     public int columm;
 
-    public Sigma4GameInstance instance;
+    public GameManager instance;
     // Start is called before the first frame update
     void OnMouseDown()
     {
         instance.SelectColumn(columm);
+        
     }
 }
