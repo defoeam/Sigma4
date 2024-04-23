@@ -10,14 +10,15 @@ public class GameManager : MonoBehaviour
     public GameObject Player2Piece;
     public GameObject[] SpawnLoc;
 
+    public Sigma4Agent Agent;
+
     /// <summary>
     /// true = Player1 turn, false = Player2 turn.
     /// </summary>
     public bool Turn = true;
     public int Size = 4;
 
-    // [0, 0, 0] int at height 0 in column (x=0, y=0)
-    int[,,] BoardState;
+    public int[,,] BoardState;
     private Dictionary<int, (int,int)> _columnToIndex;
     private List<GameObject> _piecesPlaced;
 
@@ -25,6 +26,8 @@ public class GameManager : MonoBehaviour
     void Start() {
         _columnToIndex = new Dictionary<int, (int, int)>();
         _piecesPlaced = new List<GameObject>();
+
+        Agent = GetComponent<Sigma4Agent>();
         
         InitializeNewGame();
 
@@ -104,6 +107,8 @@ public class GameManager : MonoBehaviour
     public void PlacePiece(int column) {
         if(!UpdateBoardState(column)) return;
 
+        Agent.RequestDecision();
+
         // Spawn game piece in scene.
         GameObject newPiece = Instantiate(Turn ? Player1Piece : Player2Piece, SpawnLoc[column - 1].transform.position, Quaternion.identity);
         _piecesPlaced.Add(newPiece);
@@ -114,6 +119,14 @@ public class GameManager : MonoBehaviour
 
         if(goal != 0){
             Debug.Log("Winner: Player" + goal);
+            Agent.EndEpisode();
+            InitializeNewGame();
+        } 
+
+        // Tie case
+        if(_piecesPlaced.Count == 64){
+            Debug.Log("It's a tie!!!!");
+            Agent.EndEpisode();
             InitializeNewGame();
         }
             
@@ -234,20 +247,5 @@ public class GameManager : MonoBehaviour
 
         // return 0 if no connect4 is found
         return 0;
-    }
-
-    private void Print3DIntArray(int[,,] arr){
-        for(int h = 0; h < Size; h++){
-            Debug.Log("[");
-            for(int x = 0; x < Size; x++){
-                Debug.Log("  [");
-                for(int y = 0; y < Size; y++){
-                    Debug.Log(arr[h,x,y]);
-                }
-                Debug.Log("  ]");
-            }
-            Debug.Log("]");
-        }
-        Debug.Log("-----------------------");
     }
 }
