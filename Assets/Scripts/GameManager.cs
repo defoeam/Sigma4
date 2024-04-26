@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Threading;
+using TMPro;
+using Unity.MLAgents;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -10,7 +13,8 @@ public class GameManager : MonoBehaviour
     public GameObject Player2Piece;
     public GameObject[] SpawnLoc;
 
-    public Sigma4Agent Agent;
+    public Sigma4Agent Agent1;
+    public Sigma4Agent Agent2;
 
     /// <summary>
     /// true = Player1 turn, false = Player2 turn.
@@ -19,15 +23,21 @@ public class GameManager : MonoBehaviour
     public int Size = 4;
 
     public int[,,] BoardState;
+    public List<int> FullColumns;
     private Dictionary<int, (int,int)> _columnToIndex;
     private List<GameObject> _piecesPlaced;
+    private bool waitForChoice = true;
+    private bool _gameOver = false;
 
 
     void Start() {
         _columnToIndex = new Dictionary<int, (int, int)>();
         _piecesPlaced = new List<GameObject>();
 
-        Agent = GetComponent<Sigma4Agent>();
+        //Agent1 = GetComponent<Sigma4Agent>();
+        //Agent2 = GetComponent<Sigma4Agent>();
+        Agent1.player = 1;
+        Agent2.player = 2;
         
         InitializeNewGame();
 
@@ -39,7 +49,9 @@ public class GameManager : MonoBehaviour
     /// Starts a fresh game.
     /// </summary>
     private void InitializeNewGame() {
+        _gameOver = false;
         BoardState = new int[Size, Size, Size]; 
+        FullColumns = new List<int>();
         Turn = true;
 
         // Clear all pieces from scene
@@ -47,26 +59,29 @@ public class GameManager : MonoBehaviour
             GameObject.Destroy(piece);
 
         _piecesPlaced = new List<GameObject>();
-    }
 
-
-    /// <summary>
-    /// Populates the _columnToIndex dicionary
-    /// </summary>
-    private void SetupColumnToIndexDictionary() {
-        int currentCol = 1;
-        for(int i = 0; i < Size; i++){
-            for(int j = 0; j < Size; j++){
-                _columnToIndex.Add(currentCol, (i, j));
-                currentCol++;
-            }
-        }
-    }
-
-    // We could potentially use the update method to handle turn cooldowns
-    // i.e., to stop rapid-clicking to reach impossible board states.
-    void Update() {
+        // training case
+        if(Agent1 != null && Agent2 != null)
+            waitForChoice = false;
+            
         
+    }
+
+
+    public void AgentAction(int choice){
+        PlacePiece(choice);
+        waitForChoice = false;
+    }
+    
+    void Update() {
+        if(_gameOver) InitializeNewGame();
+        if(waitForChoice) return;
+
+        Sigma4Agent agent = Turn ? Agent1 : Agent2;
+        waitForChoice = true;
+        //Debug.Log("Requesting action from:")
+        agent.RequestDecision();
+
     }
 
     /// <summary>
@@ -74,62 +89,72 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <param name="column"></param>
     /// <returns>True if piece placement is valid</returns>
-    bool UpdateBoardState(int column) {
+    private bool UpdateBoardState(int column) {
+        if(FullColumns.Exists(c => c == column)) return false;
+
         (int,int) colTup = _columnToIndex[column];
         int colX = colTup.Item1;
         int colZ = colTup.Item2;
 
-        bool full = true;
-        
-        // OpenZ is slice height
+        // OpenY is slice height
         int openY = 0;
 
         // check if column is full
         for(int i = 0; i < Size; i++)
             if(BoardState[colX, colZ, i] == 0){
                 openY = i;
-                full = false;
                 break;
             }
 
-        // If new pieces can't be placed into the column, return false.
-        if(full) return false;            
+        // if openY is 3, add column to FullColumns
+        if(openY == 3) FullColumns.Add(column);
 
         // Update BoardState and return success
         BoardState[colX, colZ, openY] = Turn ? 1 : 2;
         return true;
     }
 
+    
+
     /// <summary>
     /// 
     /// </summary>
     /// <param name="column"></param>
     public void PlacePiece(int column) {
-        if(!UpdateBoardState(column)) return;
-
-        Agent.RequestDecision();
+        if(!UpdateBoardState(column)){
+            Debug.Log("Something unexpected happended...");
+            return;
+        }
 
         // Spawn game piece in scene.
         GameObject newPiece = Instantiate(Turn ? Player1Piece : Player2Piece, SpawnLoc[column - 1].transform.position, Quaternion.identity);
         _piecesPlaced.Add(newPiece);
-        Turn = !Turn; // change turns
 
-        // Check if game is over:
-        int goal = CheckGoalState();
+        // goal check
+        int check = CheckGoalState();
+        
+        if(check != 0){
+            Sigma4Agent winningAgent = check == 1 ? Agent1 : Agent2;
+            winningAgent.AddReward(10f);
+            Debug.Log("Winner: Agent " + check);
 
-        if(goal != 0){
-            Debug.Log("Winner: Player" + goal);
-            Agent.EndEpisode();
-            InitializeNewGame();
-        } 
+            Agent1.EndEpisode();
+            Agent2.EndEpisode();
 
-        // Tie case
-        if(_piecesPlaced.Count == 64){
-            Debug.Log("It's a tie!!!!");
-            Agent.EndEpisode();
-            InitializeNewGame();
-        }
+            _gameOver = true;
             
+        } // Tie case 
+        
+        if(check == 0 &&_piecesPlaced.Count == 64){
+            Debug.Log("Tie!!");
+            Agent1.EndEpisode();
+            Agent2.EndEpisode();
+
+            _gameOver = true;
+        }
+
+        Turn = !Turn;
+
     }
 
     /// <summary>
@@ -247,5 +272,18 @@ public class GameManager : MonoBehaviour
 
         // return 0 if no connect4 is found
         return 0;
+    }
+
+    /// <summary>
+    /// Populates the _columnToIndex dicionary
+    /// </summary>
+    private void SetupColumnToIndexDictionary() {
+        int currentCol = 1;
+        for(int i = 0; i < Size; i++){
+            for(int j = 0; j < Size; j++){
+                _columnToIndex.Add(currentCol, (i, j));
+                currentCol++;
+            }
+        }
     }
 }
