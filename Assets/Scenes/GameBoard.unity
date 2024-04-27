@@ -578,7 +578,16 @@ MonoBehaviour:
   - {fileID: 1368229509}
   - {fileID: 1277498666}
   - {fileID: 1037711628}
+<<<<<<< Updated upstream:Assets/Scenes/GameBoard.unity
   turn: 0
+=======
+  Agent1: {fileID: 1766212078}
+  Agent2: {fileID: 1303634979}
+  Turn: 1
+  Size: 4
+  HumanPlayer: 1
+  FullColumns: 
+>>>>>>> Stashed changes:Assets/Scenes/GameWorld.unity
 --- !u!4 &261905952
 Transform:
   m_ObjectHideFlags: 0
@@ -1711,7 +1720,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &963194227
 Camera:
   m_ObjectHideFlags: 0
