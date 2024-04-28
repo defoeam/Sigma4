@@ -21,12 +21,13 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public bool Turn = true;
     public int Size = 4;
+    public bool HumanPlayer = false;
 
     public int[,,] BoardState;
     public List<int> FullColumns;
     private Dictionary<int, (int,int)> _columnToIndex;
     private List<GameObject> _piecesPlaced;
-    private bool waitForChoice = true;
+    private bool waitForChoice = false;
     private bool _gameOver = false;
 
 
@@ -36,9 +37,17 @@ public class GameManager : MonoBehaviour
 
         //Agent1 = GetComponent<Sigma4Agent>();
         //Agent2 = GetComponent<Sigma4Agent>();
-        Agent1.player = 1;
-        Agent2.player = 2;
-        
+        if (HumanPlayer)
+        {
+            Agent1.player = 1;
+            Agent2.player = 2;
+        }
+        else
+        {
+            Agent1.player = 2;
+            Agent2.player = 1;
+        }
+
         InitializeNewGame();
 
         // setup columnToIndex dict
@@ -60,9 +69,12 @@ public class GameManager : MonoBehaviour
 
         _piecesPlaced = new List<GameObject>();
 
+        waitForChoice = !HumanPlayer;
+        
+        //Dont know if we need this
         // training case
-        if(Agent1 != null && Agent2 != null)
-            waitForChoice = false;
+        /*if(Agent1 != null && Agent2 != null)
+            waitForChoice = false;*/
             
         
     }
@@ -75,12 +87,26 @@ public class GameManager : MonoBehaviour
     
     void Update() {
         if(_gameOver) InitializeNewGame();
-        if(waitForChoice) return;
 
-        Sigma4Agent agent = Turn ? Agent1 : Agent2;
-        waitForChoice = true;
-        //Debug.Log("Requesting action from:")
-        agent.RequestDecision();
+        if (!HumanPlayer)
+        {
+            Sigma4Agent agent = Turn ? Agent1 : Agent2;
+            agent.RequestDecision();
+            waitForChoice = true;
+        }
+
+        if (!waitForChoice)
+        {
+            if (Turn)
+            {
+                waitForChoice = true;
+            }
+            else
+            {
+                Agent2.RequestDecision();
+                waitForChoice = true;
+            }
+        }
 
     }
 
@@ -138,8 +164,11 @@ public class GameManager : MonoBehaviour
             winningAgent.AddReward(10f);
             Debug.Log("Winner: Agent " + check);
 
-            Agent1.EndEpisode();
-            Agent2.EndEpisode();
+            if(HumanPlayer)
+                Agent1.EndEpisode();
+            else
+                Agent1.EndEpisode(); Agent2.EndEpisode();
+            
 
             _gameOver = true;
             
@@ -147,13 +176,27 @@ public class GameManager : MonoBehaviour
         
         if(check == 0 &&_piecesPlaced.Count == 64){
             Debug.Log("Tie!!");
-            Agent1.EndEpisode();
-            Agent2.EndEpisode();
+            if (HumanPlayer)
+                Agent1.EndEpisode();
+            else
+                Agent1.EndEpisode(); Agent2.EndEpisode();
 
             _gameOver = true;
         }
 
-        Turn = !Turn;
+        if (!_gameOver)
+        {
+            Turn = !Turn; // Switch turn
+
+            if (HumanPlayer)
+            {
+                waitForChoice = false; // Human player made a move, no need to wait
+            }
+            else
+            {
+                waitForChoice = true; // Wait for AI decision if it's the AI's turn
+            }
+        }
 
     }
 
