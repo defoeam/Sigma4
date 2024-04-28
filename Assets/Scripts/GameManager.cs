@@ -148,7 +148,7 @@ public class GameManager : MonoBehaviour
     /// <param name="column"></param>
     public void PlacePiece(int column) {
         if(!UpdateBoardState(column)){
-            Debug.Log("Something unexpected happended...");
+            Debug.Log("Someone/something tried to place a piece on a full column...");
             return;
         }
 
@@ -161,7 +161,9 @@ public class GameManager : MonoBehaviour
         
         if(check != 0){
             Sigma4Agent winningAgent = check == 1 ? Agent1 : Agent2;
-            winningAgent.AddReward(10f);
+            Sigma4Agent losingAgent = check == 1 ? Agent2 : Agent1;
+            winningAgent.AddReward(1f);
+            losingAgent.AddReward(-1f);
             Debug.Log("Winner: Agent " + check);
 
             if(HumanPlayer)

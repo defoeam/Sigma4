@@ -72,15 +72,16 @@ public class Sigma4Agent : Agent
     {
         int col = actions.DiscreteActions[0] + 1;
         wait().ContinueWith(task => {
-            Game.AgentAction(col);
             
             
-        }, TaskContinuationOptions.ExecuteSynchronously);
+            
+        });
+        Game.AgentAction(col);
         //Debug.Log("I want to do this col: " + col);
     
     }
 
     // Simple wait util that doesn't cause the main thread to pause.
-    private async Task wait() => await Task.Delay(50);
+    private async Task wait() => await Task.Delay(1000);
 
 }

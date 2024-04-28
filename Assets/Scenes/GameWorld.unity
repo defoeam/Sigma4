@@ -582,6 +582,7 @@ MonoBehaviour:
   Agent2: {fileID: 1303634979}
   Turn: 1
   Size: 4
+  HumanPlayer: 0
   FullColumns: 
 --- !u!4 &261905952
 Transform:
@@ -2623,7 +2624,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 10
+  MaxStep: 0
   Game: {fileID: 261905951}
   player: 0
 --- !u!114 &1303634980
@@ -3220,7 +3221,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 10
+  MaxStep: 0
   Game: {fileID: 261905951}
   player: 0
 --- !u!114 &1766212079
