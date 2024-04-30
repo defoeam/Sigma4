@@ -11,13 +11,16 @@ public class GameBoard
     private int[,,] state;
     private float zeroMod;
     // Width Scores
-    public float[,] widthScores;
+    public float[,] positiveWidthScores;
+    public float[,] negativeWidthScores;
 
     // Height Scores
-    public float[,] heightScores;
+    public float[,] positiveHeightScores;
+    public float[,] negativeHeightScores;
 
     // Depth Scores
-    public float[,] depthScores;
+    public float[,] positiveDepthScores;
+    public float[,] negativeDepthScores;
 
     // Diagnal Scores
 
@@ -27,9 +30,12 @@ public class GameBoard
     {
         this.Size = size;
         state = new int[size, size, size];
-        widthScores = new float[size, size];
-        heightScores = new float[size, size];
-        depthScores = new float[size, size];
+        positiveWidthScores = new float[size, size];
+        negativeWidthScores = new float[size, size];
+        positiveHeightScores = new float[size, size];
+        negativeHeightScores = new float[size, size];
+        positiveDepthScores = new float[size, size];
+        negativeDepthScores = new float[size, size];
         zeroMod = 0.8f / size;
     }
 
@@ -61,7 +67,10 @@ public class GameBoard
 
     public (float, float) GetAverageOpportunityScores()
     {
-        return (0.0f, 0.0f);
+        float posSum = Array2DAverage(positiveWidthScores) + Array2DAverage(positiveHeightScores) + Array2DAverage(positiveDepthScores);
+        float negSum = Array2DAverage(negativeWidthScores) + Array2DAverage(negativeHeightScores) + Array2DAverage(negativeDepthScores);
+
+        return (posSum / 3, negSum / 3);
     }
 
     public void CalculateOpportunityScores()
@@ -71,8 +80,8 @@ public class GameBoard
         {
             for (int y = 0; y < Size; y++)
             {
-                widthScores[y, z] = CalculateLineScore((0, y, z), 0);
-                Debug.Log(widthScores[y, z]);
+                positiveWidthScores[y, z] = CalculateLineScore((0, y, z), 0);
+                negativeWidthScores[y, z] = CalculateLineScore((0, y, z), 0, true);
             }
         }
 
@@ -81,7 +90,8 @@ public class GameBoard
         {
             for (int z = 0; z < Size; z++)
             {
-                widthScores[x, z] = CalculateLineScore((x, 0, z), 1);
+                positiveHeightScores[x, z] = CalculateLineScore((x, 0, z), 1);
+                negativeHeightScores[x, z] = CalculateLineScore((x, 0, z), 1, true);
             }
         }
 
@@ -90,14 +100,15 @@ public class GameBoard
         {
             for (int y = 0; y < Size; y++)
             {
-                widthScores[x, y] = CalculateLineScore((x, y, 0), 2);
+                positiveWidthScores[x, y] = CalculateLineScore((x, y, 0), 2);
+                negativeWidthScores[x, y] = CalculateLineScore((x, y, 0), 2, true);
             }
         }
     }
 
     // Calculate the opportunity score for a line starting at x,y,z and then increment on the index
     // index 0=x    1=y    2=z   3=xdiagnal      4=zdiagnal
-    public float CalculateLineScore((int, int, int) startPos, int index)
+    public float CalculateLineScore((int, int, int) startPos, int index, bool flipPerspective=false)
     {
         // Extract line for processing
         int[] line = new int[Size];
@@ -120,6 +131,15 @@ public class GameBoard
             }
         }
 
+        // If perspective fliped, flip 1s and -1s
+        if (flipPerspective)
+        {
+            for(int i = 0; i < line.Length; i++)
+            {
+                line[i] = line[i] * -1;
+            }
+        }
+
         // Get max number of 1 or 0s in a row
         (int, int, int) inARow = GetMostInARow(line);
         int maxNumInARow = inARow.Item1;
@@ -127,7 +147,7 @@ public class GameBoard
         int ones = inARow.Item3;
         int zeros = maxNumInARow - ones;
 
-        Debug.Log(GameBoard.ArrayToString(line.Select(x => (float)x).ToArray()));
+        Debug.Log(startPos.Item1 + ":" + startPos.Item2 + ":" + startPos.Item3 + " " + GameBoard.ArrayToString(line.Select(x => (float)x).ToArray()));
 
 
         // Calculate score
@@ -211,5 +231,20 @@ public class GameBoard
             output += input[i] + " ";
         }
         return output + "]";
+    }
+
+    public static float Array2DAverage(float[,] input)
+    {
+        float sum = 0;
+        int count = 0;
+        for (int x = 0; x < input.GetLength(0); x++)
+        {
+            for (int y = 0; y < input.GetLength(1); y++)
+            {
+                sum += input[x, y];
+                count++;
+            }
+        }
+        return sum / count;
     }
 }

@@ -11,14 +11,14 @@ public class GameBoardTesting : MonoBehaviour
         GameBoard board = new GameBoard(4);
 
         int[,] zero = { { 1, 1, 1, 1},
-                        { 1, 1, 1, 0},
-                        { 1, 1, 0, 0},
-                        { 1 ,0 ,0 ,0} };
+                        { 0, 0, 0, 0},
+                        { 0, 0, 0, 0},
+                        { 0, 0, 0, 0} };
         int[,] one = { { 0, 0, 0, 0},
-                        { -1, 0, 0, 0},
-                        { -1, -1, 0, 0},
-                        { -1 ,-1 , -1 ,-1} };
-        int[,] two = { { 1, 1, -1, 0},
+                        { 0, 0, 0, 0},
+                        { 0, 0, 0, 0},
+                        { 0, 0, 0, 0 } };
+        int[,] two = { { 0, 0, 0, 0},
                         { 0, 0, 0, 0},
                         { 0, 0, 0, 0},
                         { 0 ,0 ,0 ,0} };
@@ -40,6 +40,9 @@ public class GameBoardTesting : MonoBehaviour
                 Debug.Log("Score: " + score);
             }
         }
+
+        board.CalculateOpportunityScores();
+        Debug.Log("Averages: " + board.GetAverageOpportunityScores());
     }
 
     // Update is called once per frame
