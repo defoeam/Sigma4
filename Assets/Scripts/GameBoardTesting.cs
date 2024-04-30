@@ -10,10 +10,10 @@ public class GameBoardTesting : MonoBehaviour
 
         GameBoard board = new GameBoard(4);
 
-        int[,] zero = { { 1, 1, 1, 1},
-                        { 0, 0, 0, 0},
-                        { 0, 0, 0, 0},
-                        { 0, 0, 0, 0} };
+        int[,] zero = { { 1, 0, 0, 0},
+                        { 0, 1, 0, 0},
+                        { 0, 0, 1, 0},
+                        { 0, 0, 0, -1} };
         int[,] one = { { 0, 0, 0, 0},
                         { 0, 0, 0, 0},
                         { 0, 0, 0, 0},
@@ -32,17 +32,11 @@ public class GameBoardTesting : MonoBehaviour
         board.SetSlice(2, two);
         board.SetSlice(3, three);
 
-        for(int x = 0; x < 3; x++)
-        {
-            for(int y = 0; y < 3; y++)
-            {
-                float score = board.CalculateLineScore((x, y, 0), 2);
-                Debug.Log("Score: " + score);
-            }
-        }
+        float score = board.CalculateLineScore((0, 0, 0), ScoreDirection.YZDia);
+        Debug.Log("Score: " + score);
 
-        board.CalculateOpportunityScores();
-        Debug.Log("Averages: " + board.GetAverageOpportunityScores());
+        //board.CalculateOpportunityScores();
+        //Debug.Log("Averages: " + board.GetAverageOpportunityScores());
     }
 
     // Update is called once per frame
