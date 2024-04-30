@@ -1,4 +1,4 @@
-# Sigma4: 3D Connect 4 AI Challenge
+# Sigma4: 3D Connect 4 AI Agent
 
 ## Project Team
 - Anthony DeFoe
