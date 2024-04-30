@@ -4,15 +4,20 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
+using System;
+using System.Threading.Tasks;
 
 public class Sigma4Agent : Agent
 {
 
-    private GameManager Game;
+    public GameManager Game;
+    public GameBoard BoardState;
+
+    public int player = 0;
     
     void Start()
     {
-        Game = GetComponent<GameManager>();
+        BoardState = Game.BoardState;
     }
 
     public override void OnEpisodeBegin()
@@ -22,7 +27,37 @@ public class Sigma4Agent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
+        int[,,] board = new int[Game.Size, Game.Size, Game.Size];
+        Array.Copy(BoardState.State, board, board.Length);
+
+        // account for player 2 case:
+        //    reverse the board state map such that the 1s and 2s are swapped.
+        if(player == 2)
+            for(int x = 0; x < Game.Size; x++)
+                for(int z = 0; z < Game.Size; z++)
+                    for(int y = 0; y < Game.Size; y++)
+                        if(board[x,z,y] == 1)
+                            board[x,z,y] = 2;
+                        else if(board[x,z,y] == 2)
+                            board[x,z,y] = 1;
         
+
+        // Add observerations
+        foreach(int i in board)
+            sensor.AddObservation(i);
+        
+    }
+
+    /// <summary>
+    /// Agent will konw not to select a column that is full as an action.
+    /// </summary>
+    /// <param name="actionMask"></param>
+    public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
+    {
+        foreach(int col in Game.FullColumns)
+            actionMask.SetActionEnabled(0, col - 1, false);
+        
+            
     }
 
 
@@ -32,7 +67,17 @@ public class Sigma4Agent : Agent
     /// <param name="actions"></param>
     public override void OnActionReceived(ActionBuffers actions)
     {
+        int col = actions.DiscreteActions[0] + 1;
+        wait().ContinueWith(task => {
+            
+            
+            Game.AgentAction(col);
+        }, TaskContinuationOptions.ExecuteSynchronously);
         
+        //Debug.Log("I want to do this col: " + col);
+    
     }
+
+    private static async Task wait() => await Task.Delay(300);
 
 }
