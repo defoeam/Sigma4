@@ -49,6 +49,11 @@ public class GameBoard
         return state[x, y, z];
     }
 
+    public void SetSpot((int, int, int) position, int value)
+    {
+        this.SetSpot(position.Item1, position.Item2, position.Item3, value);
+    }
+
     public void SetSpot(int x, int y, int z, int value)
     {
         state[x, y, z] = value;
