@@ -1,17 +1,26 @@
-724 AI Project - Sigma4 - Anthony DeFoe, Joshua Heeren, Gavin Kestner, Jonathan Rivard
+# Sigma4: 3D Connect 4 AI Challenge
 
-Objective: ​
+## Project Team
+- Anthony DeFoe
+- Joshua Heeren
+- Gavin Kestner
+- Jonathan Rivard
 
-  Develop an AI agent that is capable of challenging human players in 3D Connect 4.​
+## Objective
+The primary goal of the Sigma4 project is to develop an AI agent capable of competing against human players in a 3D version of the classic game Connect 4. Our AI will demonstrate:
+- **Strategic Decision-Making:** Ability to make complex decisions that challenge human opponents.
+- **Tactical Prowess:** Utilization of tactical maneuvers learned through self-play.
+- **Algorithm Implementation:** Integration of traditional AI techniques and modern deep learning algorithms.
 
-  Showcase strategic decision-making and tactical prowess​
+## Game Overview
+3D Connect4 is played on a 4x4x4 grid by two participants. The objective for each player is to align four of their tokens either horizontally, vertically, or diagonally. This three-dimensional play adds a layer of complexity to the traditional Connect 4 game, providing a unique challenge that tests both the player's and the AI's strategic planning skills.
 
-  Demonstrate traditional implementations of AI and modern deep learning algorithms in board games.​
+## Installation and Setup
+*TODO*
 
-Game Overview:​
-
-  4x4x4 grid for 2 players​
-
-  Connect 4 tokens horizontally, vertically, or diagonally to win the game​
-
-  
+## Contact Information
+For more information or any queries, please reach out to:
+- Anthony DeFoe, anthony.defoe@ndsu.edu, https://www.linkedin.com/in/amdefoe/
+- Joshua Heeren, *todo*
+- Gavin Kestner, *todo*
+- Jonathan Rivard, *todo*
