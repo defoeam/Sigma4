@@ -1,23 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
-using System;
+using Unity.VisualScripting;
 using System.Threading.Tasks;
+using System;
 
 public class Sigma4Agent : Agent
 {
 
     public GameManager Game;
-    public GameBoard BoardState;
-
     public int player = 0;
     
     void Start()
     {
-        BoardState = Game.BoardState;
+        
     }
 
     public override void OnEpisodeBegin()
@@ -28,7 +28,9 @@ public class Sigma4Agent : Agent
     public override void CollectObservations(VectorSensor sensor)
     {
         int[,,] board = new int[Game.Size, Game.Size, Game.Size];
-        Array.Copy(BoardState.State, board, board.Length);
+        Array.Copy(Game.BoardState, board, board.Length);
+
+        //Debug.Log(board.ToCommaSeparatedString());
 
         // account for player 2 case:
         //    reverse the board state map such that the 1s and 2s are swapped.
@@ -41,6 +43,7 @@ public class Sigma4Agent : Agent
                         else if(board[x,z,y] == 2)
                             board[x,z,y] = 1;
         
+
 
         // Add observerations
         foreach(int i in board)
@@ -71,13 +74,14 @@ public class Sigma4Agent : Agent
         wait().ContinueWith(task => {
             
             
-            Game.AgentAction(col);
-        }, TaskContinuationOptions.ExecuteSynchronously);
-        
+            
+        });
+        Game.AgentAction(col);
         //Debug.Log("I want to do this col: " + col);
     
     }
 
-    private static async Task wait() => await Task.Delay(300);
+    // Simple wait util that doesn't cause the main thread to pause.
+    private async Task wait() => await Task.Delay(1000);
 
 }
