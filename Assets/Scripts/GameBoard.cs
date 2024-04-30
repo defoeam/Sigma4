@@ -1,20 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using UnityEngine;
 
-public class GameBoard : MonoBehaviour
+public class GameBoard
 {
     public int Size {  get; private set; }
+    public int[,,] State { get { return this.state; } private set { this.state = value;  } }
     private int[,,] state;
+    private float zeroMod;
     // Width Scores
-    private int[,] widthScores;
+    public float[,] widthScores;
 
     // Height Scores
-    private int[,] heightScores;
+    public float[,] heightScores;
 
     // Depth Scores
-    private int[,] depthScores;
+    public float[,] depthScores;
 
     // Diagnal Scores
 
@@ -24,6 +27,10 @@ public class GameBoard : MonoBehaviour
     {
         this.Size = size;
         state = new int[size, size, size];
+        widthScores = new float[size, size];
+        heightScores = new float[size, size];
+        depthScores = new float[size, size];
+        zeroMod = 0.8f / size;
     }
 
     public int GetSpot((int, int, int) position)
@@ -41,6 +48,22 @@ public class GameBoard : MonoBehaviour
         state[x, y, z] = value;
     }
 
+    public void SetSlice(int x, int[,] slice)
+    {
+        for(int y = 0; y < slice.GetLength(0); y++)
+        {
+            for (int z = 0; z < slice.GetLength(1); z++)
+            {
+                this.state[x, y, z] = slice[y, z];
+            }
+        }
+    }
+
+    public (float, float) GetAverageOpportunityScores()
+    {
+        return (0.0f, 0.0f);
+    }
+
     public void CalculateOpportunityScores()
     {
         // Width Scores
@@ -49,6 +72,7 @@ public class GameBoard : MonoBehaviour
             for (int y = 0; y < Size; y++)
             {
                 widthScores[y, z] = CalculateLineScore((0, y, z), 0);
+                Debug.Log(widthScores[y, z]);
             }
         }
 
@@ -73,7 +97,7 @@ public class GameBoard : MonoBehaviour
 
     // Calculate the opportunity score for a line starting at x,y,z and then increment on the index
     // index 0=x    1=y    2=z   3=xdiagnal      4=zdiagnal
-    private float CalculateLineScore((int, int, int) startPos, int index)
+    public float CalculateLineScore((int, int, int) startPos, int index)
     {
         // Extract line for processing
         int[] line = new int[Size];
@@ -90,7 +114,7 @@ public class GameBoard : MonoBehaviour
             {
                 currentPos.Item2 += 1;
             }
-            else if (index == 3)
+            else if (index == 2)
             {
                 currentPos.Item3 += 1;
             }
@@ -103,32 +127,25 @@ public class GameBoard : MonoBehaviour
         int ones = inARow.Item3;
         int zeros = maxNumInARow - ones;
 
+        Debug.Log(GameBoard.ArrayToString(line.Select(x => (float)x).ToArray()));
+
+
         // Calculate score
-        // If no zeros, no room to grow, zero score
-        if (zeros == 0)
+        // If can grow to a connect 4
+        if ((ones + zeros) >= 4)
         {
-            return 0.0f;
-        }
-        // If no ones, return zero score
-        else if (ones == 0)
+            // Connect 4 = 1, more zeros make it further away from 1
+            return 1f - (zeroMod * zeros);
+        }else
         {
-            return 0.0f;
-        }
-        // If ones + zeros = 4, best case, scale with number of ones
-        else if ((ones + zeros) >= 4)
-        {
-            return (ones * 0.25f) + (zeros * 0.1f);
-        }
-        // Otherwise, same score calculation with small reduction
-        else
-        {
-            return ((ones * 0.25f) + (zeros * 0.1f)) * 0.8f;
+            // No way to get to connect 4, return 0
+            return 0;
         }
     }
 
     // Given an array of 0, 1, or -1, returns a tuple (int, int, int) for the (max number of 1 or 0s in a row, startIndex, num of 1s in that return sequence)
     // ie [0, 1, 1, 0, -1, 1, 1, 0] would see the first 4 spots as the max in a row and return (4, 0, 2)
-    private (int, int, int) GetMostInARow(int[] input)
+    public (int, int, int) GetMostInARow(int[] input)
     {
         int length = input.Length;
         int current = 0; // Current 1s in a row
@@ -154,14 +171,45 @@ public class GameBoard : MonoBehaviour
                 current = 0;
             }
         }
+        // Last check for end of line max, potientally replace the maxs and restart
+        if (current > max)
+        {
+            max = current;
+            maxIndex = currentIndex;
+        }
 
         // Get amount of 1s in the max in a row sequence
         int numOfOnes = 0;
         for (int i = maxIndex; i < max; i++)
         {
-            if (i == 1) numOfOnes++;
+            if (input[i] == 1) numOfOnes++;
         }
 
         return (max, maxIndex, numOfOnes);
+    }
+
+    public static string Array2DToString(float[,] input)
+    {
+        string output = "[ ";
+        for(int x = 0; x < input.GetLength(0); x++)
+        {
+            for(int y = 0;  y < input.GetLength(1); y++)
+            {
+                output += input[x, y] + " ";
+            }
+            output += "\n";
+        }
+        output += "]";
+        return output;
+    }
+
+    public static string ArrayToString(float[] input) 
+    {
+        string output = "[ ";
+        for(int i = 0; i < input.Length; i++)
+        {
+            output += input[i] + " ";
+        }
+        return output + "]";
     }
 }
