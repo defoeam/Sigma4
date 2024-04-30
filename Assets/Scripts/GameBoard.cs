@@ -213,6 +213,14 @@ public class GameBoard
         return (max, maxIndex, numOfOnes);
     }
 
+    // player 1: 2, player 2: 0, empty: 1
+    public string StateToString(){
+        string output = "";
+        foreach(int i in State)
+            output += i + 1;
+        return output;
+    }
+
     public static string Array2DToString(float[,] input)
     {
         string output = "[ ";
