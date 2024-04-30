@@ -30,8 +30,6 @@ public class Sigma4Agent : Agent
         int[,,] board = new int[Game.Size, Game.Size, Game.Size];
         Array.Copy(Game.BoardState.State, board, board.Length);
 
-        //Debug.Log(board.ToCommaSeparatedString());
-
         // account for player 2 case:
         //    reverse the board state map such that the 1s and 2s are swapped.
         if(player == 2)
@@ -39,11 +37,10 @@ public class Sigma4Agent : Agent
                 for(int z = 0; z < Game.Size; z++)
                     for(int y = 0; y < Game.Size; y++)
                         if(board[x,z,y] == 1)
-                            board[x,z,y] = 2;
-                        else if(board[x,z,y] == 2)
+                            board[x,z,y] = -1;
+                        else if(board[x,z,y] == -1)
                             board[x,z,y] = 1;
         
-
 
         // Add observerations
         foreach(int i in board)
@@ -59,8 +56,6 @@ public class Sigma4Agent : Agent
     {
         foreach(int col in Game.FullColumns)
             actionMask.SetActionEnabled(0, col - 1, false);
-        
-            
     }
 
 
@@ -70,11 +65,13 @@ public class Sigma4Agent : Agent
     /// <param name="actions"></param>
     public override void OnActionReceived(ActionBuffers actions)
     {
+
         int col = actions.DiscreteActions[0] + 1;
         wait().ContinueWith(task => {
-            
-            
             Game.AgentAction(col);
+
+            
+
         }, TaskContinuationOptions.ExecuteSynchronously);
         
         //Debug.Log("I want to do this col: " + col);

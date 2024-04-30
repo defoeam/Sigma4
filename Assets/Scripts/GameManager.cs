@@ -32,13 +32,14 @@ public class GameManager : MonoBehaviour
     private bool waitForChoice = false;
     private bool _gameOver = false;
 
+    //test
+    private static List<string> exploredStates = new List<string>();
+
 
     void Start() {
         _columnToIndex = new Dictionary<int, (int, int)>();
         _piecesPlaced = new List<GameObject>();
 
-        //Agent1 = GetComponent<Sigma4Agent>();
-        //Agent2 = GetComponent<Sigma4Agent>();
         if (HumanPlayer)
         {
             Agent1.player = 1;
@@ -72,19 +73,12 @@ public class GameManager : MonoBehaviour
         _piecesPlaced = new List<GameObject>();
 
         waitForChoice = !HumanPlayer;
-        
-        //Dont know if we need this
-        // training case
-        /*if(Agent1 != null && Agent2 != null)
-            waitForChoice = false;*/
-            
-        
     }
 
 
     public void AgentAction(int choice){
-        PlacePiece(choice);
-        waitForChoice = false;
+        if(PlacePiece(choice))
+            waitForChoice = false;
     }
     
     void Update() {
@@ -100,9 +94,7 @@ public class GameManager : MonoBehaviour
         if (!waitForChoice)
         {
             if (Turn)
-            {
                 waitForChoice = true;
-            }
             else
             {
                 Agent2.RequestDecision();
@@ -138,7 +130,7 @@ public class GameManager : MonoBehaviour
         if(openY == 3) FullColumns.Add(column);
 
         // Update BoardState.GetSpot(and r)turn success
-        BoardState.SetSpot(colX, colZ, openY, Turn ? 1 : 2); 
+        BoardState.SetSpot(colX, colZ, openY, Turn ? 1 : -1); 
         return true;
     }
 
@@ -148,11 +140,27 @@ public class GameManager : MonoBehaviour
     /// 
     /// </summary>
     /// <param name="column"></param>
-    public void PlacePiece(int column) {
+    public bool PlacePiece(int column) {
         if(!UpdateBoardState(column)){
-            Debug.Log("Someone/something tried to place a piece on a full column...");
-            return;
+            return false;
         }
+
+        // Get current agent
+        Sigma4Agent currentAgent = Turn ? Agent1 : Agent2;
+
+        // Check if new state was explored
+        string boardStr = BoardState.StateToString();
+        if(!exploredStates.Contains(boardStr)){
+            exploredStates.Add(boardStr);
+            currentAgent.AddReward(0.2f);
+            //Debug.Log($"Explored States length: {exploredStates.Count}");
+        }
+
+        // Add opportunity reward
+        (float, float) opps = BoardState.GetAverageOpportunityScores();
+        float opportunity = Turn ? opps.Item1 : opps.Item2;
+        //Debug.Log($"Player {currentAgent.player}'s opp: {opportunity}");
+        currentAgent.AddReward(opportunity);
 
         // Spawn game piece in scene.
         GameObject newPiece = Instantiate(Turn ? Player1Piece : Player2Piece, SpawnLoc[column - 1].transform.position, Quaternion.identity);
@@ -162,10 +170,12 @@ public class GameManager : MonoBehaviour
         int check = CheckGoalState();
         
         if(check != 0){
+            // win/loss reward/penalty assigning
             Sigma4Agent winningAgent = check == 1 ? Agent1 : Agent2;
             Sigma4Agent losingAgent = check == 1 ? Agent2 : Agent1;
-            winningAgent.AddReward(1f);
-            losingAgent.AddReward(-1f);
+            winningAgent.AddReward(10f);
+            losingAgent.AddReward(-10f);
+
             Debug.Log("Winner: Agent " + check);
 
             if(HumanPlayer)
@@ -173,7 +183,6 @@ public class GameManager : MonoBehaviour
             else
                 Agent1.EndEpisode(); Agent2.EndEpisode();
             
-
             _gameOver = true;
             
         } // Tie case 
@@ -193,14 +202,12 @@ public class GameManager : MonoBehaviour
             Turn = !Turn; // Switch turn
 
             if (HumanPlayer)
-            {
                 waitForChoice = false; // Human player made a move, no need to wait
-            }
             else
-            {
                 waitForChoice = true; // Wait for AI decision if it's the AI's turn
-            }
         }
+
+        return true;
 
     }
 
