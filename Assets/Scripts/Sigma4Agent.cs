@@ -28,7 +28,7 @@ public class Sigma4Agent : Agent
     public override void CollectObservations(VectorSensor sensor)
     {
         int[,,] board = new int[Game.Size, Game.Size, Game.Size];
-        Array.Copy(Game.BoardState, board, board.Length);
+        Array.Copy(Game.BoardState.State, board, board.Length);
 
         //Debug.Log(board.ToCommaSeparatedString());
 
@@ -74,14 +74,14 @@ public class Sigma4Agent : Agent
         wait().ContinueWith(task => {
             
             
-            
-        });
-        Game.AgentAction(col);
+            Game.AgentAction(col);
+        }, TaskContinuationOptions.ExecuteSynchronously);
+        
         //Debug.Log("I want to do this col: " + col);
     
     }
 
     // Simple wait util that doesn't cause the main thread to pause.
-    private async Task wait() => await Task.Delay(1000);
+    private async Task wait() => await Task.Delay(500);
 
 }

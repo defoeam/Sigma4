@@ -23,7 +23,9 @@ public class GameManager : MonoBehaviour
     public int Size = 4;
     public bool HumanPlayer = false;
 
-    public int[,,] BoardState;
+    
+    public GameBoard BoardState;
+
     public List<int> FullColumns;
     private Dictionary<int, (int,int)> _columnToIndex;
     private List<GameObject> _piecesPlaced;
@@ -59,7 +61,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void InitializeNewGame() {
         _gameOver = false;
-        BoardState = new int[Size, Size, Size]; 
+        BoardState = new GameBoard(4);
         FullColumns = new List<int>();
         Turn = true;
 
@@ -111,8 +113,8 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Updates BoardState 
-    /// </summary>
+    /// Updates BoardState
+    // </summary>
     /// <param name="column"></param>
     /// <returns>True if piece placement is valid</returns>
     private bool UpdateBoardState(int column) {
@@ -127,7 +129,7 @@ public class GameManager : MonoBehaviour
 
         // check if column is full
         for(int i = 0; i < Size; i++)
-            if(BoardState[colX, colZ, i] == 0){
+            if(BoardState.GetSpot(colX,colZ, i) == 0){
                 openY = i;
                 break;
             }
@@ -135,8 +137,8 @@ public class GameManager : MonoBehaviour
         // if openY is 3, add column to FullColumns
         if(openY == 3) FullColumns.Add(column);
 
-        // Update BoardState and return success
-        BoardState[colX, colZ, openY] = Turn ? 1 : 2;
+        // Update BoardState.GetSpot(and r)turn success
+        BoardState.SetSpot(colX, colZ, openY, Turn ? 1 : 2); 
         return true;
     }
 
@@ -211,107 +213,107 @@ public class GameManager : MonoBehaviour
         // Check x oriented 
         for(int x = 0; x < Size; x++){
             // check for (-z,-y) to (z,y) diagonals
-            if(BoardState[x,0,0] != 0 
-            && BoardState[x,0,0] == BoardState[x,1,1]
-            && BoardState[x,1,1] == BoardState[x,2,2] 
-            && BoardState[x,2,2] == BoardState[x,3,3])
-                return BoardState[x,0,0];
+            if(BoardState.GetSpot(x,0,0) != 0 
+            && BoardState.GetSpot(x,0,0) == BoardState.GetSpot(x,1,1)
+            && BoardState.GetSpot(x,1,1) == BoardState.GetSpot(x,2,2) 
+            && BoardState.GetSpot(x,2,2) == BoardState.GetSpot(x,3,3))
+                return BoardState.GetSpot(x,0,0);
             
             // check for (-z,y) to (z,-y) diagonals
-            if(BoardState[x,0,3] != 0 
-            && BoardState[x,0,3] == BoardState[x,1,2]
-            && BoardState[x,1,2] == BoardState[x,2,1]
-            && BoardState[x,2,1] == BoardState[x,3,0])
-                return BoardState[x,0,3];
+            if(BoardState.GetSpot(x,0,3) != 0 
+            && BoardState.GetSpot(x,0,3) == BoardState.GetSpot(x,1,2)
+            && BoardState.GetSpot(x,1,2) == BoardState.GetSpot(x,2,1)
+            && BoardState.GetSpot(x,2,1) == BoardState.GetSpot(x,3,0))
+                return BoardState.GetSpot(x,0,3);
 
             // check for -y to +y columns
             for(int z = 0; z < Size; z++)
-                if(BoardState[x,z,0] == 0) continue;
-                else if(BoardState[x,z,0] == BoardState[x,z,1] 
-                && BoardState[x,z,1] == BoardState[x,z,2] 
-                && BoardState[x,z,2] == BoardState[x,z,3])
-                    return BoardState[x,z,0];
+                if(BoardState.GetSpot(x,z,0) == 0) continue;
+                else if(BoardState.GetSpot(x,z,0) == BoardState.GetSpot(x,z,1) 
+                && BoardState.GetSpot(x,z,1) == BoardState.GetSpot(x,z,2) 
+                && BoardState.GetSpot(x,z,2) == BoardState.GetSpot(x,z,3))
+                    return BoardState.GetSpot(x,z,0);
             
             // check for -z to +z rows
             for(int y = 0; y < Size; y++)
-                if(BoardState[x,0,y] == 0) continue;
-                else if(BoardState[x,0,y] == BoardState[x,1,y] 
-                && BoardState[x,1,y] == BoardState[x,2,y] 
-                && BoardState[x,2,y] == BoardState[x,3,y])
-                    return BoardState[x,0,y];
+                if(BoardState.GetSpot(x,0,y) == 0) continue;
+                else if(BoardState.GetSpot(x,0,y) == BoardState.GetSpot(x,1,y) 
+                && BoardState.GetSpot(x,1,y) == BoardState.GetSpot(x,2,y) 
+                && BoardState.GetSpot(x,2,y) == BoardState.GetSpot(x,3,y))
+                    return BoardState.GetSpot(x,0,y);
         }
             
         // Check z oriented
         for(int z = 0; z < Size; z++){
             // Check for (-x,-y) to (x,y) diagonals
-            if(BoardState[0,z,0] != 0
-            && BoardState[0,z,0] == BoardState[1,z,1]
-            && BoardState[1,z,1] == BoardState[2,z,2]
-            && BoardState[2,z,2] == BoardState[3,z,3])
-                return BoardState[0,z,0];
+            if(BoardState.GetSpot(0,z,0) != 0
+            && BoardState.GetSpot(0,z,0) == BoardState.GetSpot(1,z,1)
+            && BoardState.GetSpot(1,z,1) == BoardState.GetSpot(2,z,2)
+            && BoardState.GetSpot(2,z,2) == BoardState.GetSpot(3,z,3))
+                return BoardState.GetSpot(0,z,0);
 
             // Check for (-x,y) to (x,-y) diagonals
-            if(BoardState[0,z,3] != 0
-            && BoardState[0,z,3] == BoardState[1,z,2]
-            && BoardState[1,z,2] == BoardState[2,z,1]
-            && BoardState[2,z,1] == BoardState[3,z,0])
-                return BoardState[0,z,3];
+            if(BoardState.GetSpot(0,z,3) != 0
+            && BoardState.GetSpot(0,z,3) == BoardState.GetSpot(1,z,2)
+            && BoardState.GetSpot(1,z,2) == BoardState.GetSpot(2,z,1)
+            && BoardState.GetSpot(2,z,1) == BoardState.GetSpot(3,z,0))
+                return BoardState.GetSpot(0,z,3);
             
             // Check for -x to +x rows    
             for(int y = 0; y < Size; y++)
-                if(BoardState[0,z,y] == 0) continue;
-                else if(BoardState[0,z,y] == BoardState[1,z,y] 
-                && BoardState[1,z,y] == BoardState[2,z,y] 
-                && BoardState[2,z,y] == BoardState[3,z,y])
-                    return BoardState[0,z,y];
+                if(BoardState.GetSpot(0,z,y) == 0) continue;
+                else if(BoardState.GetSpot(0,z,y) == BoardState.GetSpot(1,z,y) 
+                && BoardState.GetSpot(1,z,y) == BoardState.GetSpot(2,z,y) 
+                && BoardState.GetSpot(2,z,y) == BoardState.GetSpot(3,z,y))
+                    return BoardState.GetSpot(0,z,y);
         }
             
         // Check y oriented
         for(int y = 0; y < Size; y++){
             // Check for (-x,-z) to (x,z) diagonals
-            if(BoardState[0,0,y] != 0
-            && BoardState[0,0,y] == BoardState[1,1,y]
-            && BoardState[1,1,y] == BoardState[2,2,y]
-            && BoardState[2,2,y] == BoardState[3,3,y])
-                return BoardState[0,0,y];
+            if(BoardState.GetSpot(0,0,y) != 0
+            && BoardState.GetSpot(0,0,y) == BoardState.GetSpot(1,1,y)
+            && BoardState.GetSpot(1,1,y) == BoardState.GetSpot(2,2,y)
+            && BoardState.GetSpot(2,2,y) == BoardState.GetSpot(3,3,y))
+                return BoardState.GetSpot(0,0,y);
 
             // Check for (-x,z) to (x,-z) diagonals
-            if(BoardState[0,3,y] != 0
-            && BoardState[0,3,y] == BoardState[1,2,y]
-            && BoardState[1,2,y] == BoardState[2,1,y]
-            && BoardState[2,1,y] == BoardState[3,0,y])
-                return BoardState[0,3,y];
+            if(BoardState.GetSpot(0,3,y) != 0
+            && BoardState.GetSpot(0,3,y) == BoardState.GetSpot(1,2,y)
+            && BoardState.GetSpot(1,2,y) == BoardState.GetSpot(2,1,y)
+            && BoardState.GetSpot(2,1,y) == BoardState.GetSpot(3,0,y))
+                return BoardState.GetSpot(0,3,y);
         }
         #endregion
 
         #region Hard Diagonal Tests
         // Check (-x,-z,-y) to (x,z,y) diagonal
-        if(BoardState[0,0,0] != 0
-        && BoardState[0,0,0] == BoardState[1,1,1]
-        && BoardState[1,1,1] == BoardState[2,2,2]
-        && BoardState[2,2,2] == BoardState[3,3,3])
-            return BoardState[0,0,0];
+        if(BoardState.GetSpot(0,0,0) != 0
+        && BoardState.GetSpot(0,0,0) == BoardState.GetSpot(1,1,1)
+        && BoardState.GetSpot(1,1,1) == BoardState.GetSpot(2,2,2)
+        && BoardState.GetSpot(2,2,2) == BoardState.GetSpot(3,3,3))
+            return BoardState.GetSpot(0,0,0);
 
         // Check (-x,-z,y) to (x,z,-y) diagonal
-        if(BoardState[0,0,3] != 0
-        && BoardState[0,0,3] == BoardState[1,1,2]
-        && BoardState[1,1,2] == BoardState[2,2,1]
-        && BoardState[2,2,1] == BoardState[3,3,0])
-            return BoardState[0,0,3];
+        if(BoardState.GetSpot(0,0,3) != 0
+        && BoardState.GetSpot(0,0,3) == BoardState.GetSpot(1,1,2)
+        && BoardState.GetSpot(1,1,2) == BoardState.GetSpot(2,2,1)
+        && BoardState.GetSpot(2,2,1) == BoardState.GetSpot(3,3,0))
+            return BoardState.GetSpot(0,0,3);
 
         // Check (x,-z,-y) to (-x,z,y) diagonal
-        if(BoardState[3,0,0] != 0
-        && BoardState[3,0,0] == BoardState[2,1,1]
-        && BoardState[2,1,1] == BoardState[1,2,2]
-        && BoardState[1,2,2] == BoardState[0,3,3])
-            return BoardState[3,0,0];
+        if(BoardState.GetSpot(3,0,0) != 0
+        && BoardState.GetSpot(3,0,0) == BoardState.GetSpot(2,1,1)
+        && BoardState.GetSpot(2,1,1) == BoardState.GetSpot(1,2,2)
+        && BoardState.GetSpot(1,2,2) == BoardState.GetSpot(0,3,3))
+            return BoardState.GetSpot(3,0,0);
 
         // Check (-x,z,-y) to (x,-z,y) diagonal
-        if(BoardState[0,3,0] != 0
-        && BoardState[0,3,0] == BoardState[1,2,1]
-        && BoardState[1,2,1] == BoardState[2,1,2]
-        && BoardState[2,1,2] == BoardState[3,0,3])
-            return BoardState[0,3,0];
+        if(BoardState.GetSpot(0,3,0) != 0
+        && BoardState.GetSpot(0,3,0) == BoardState.GetSpot(1,2,1)
+        && BoardState.GetSpot(1,2,1) == BoardState.GetSpot(2,1,2)
+        && BoardState.GetSpot(2,1,2) == BoardState.GetSpot(3,0,3))
+            return BoardState.GetSpot(0,3,0);
 
         #endregion
 
