@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using TMPro;
@@ -42,6 +44,15 @@ public class GameManager : MonoBehaviour
     private float hasteMultiplier = 1f;
 
 
+    // Model vs Model testing
+    public static bool MvMEnabled = true;
+    public static int TargetGamesPlayed = 1000;
+    private static int CurrentGamesPlayed = 0;
+    private static int player1WinCount = 0;
+    private static int player2WinCount = 0;
+    private static DateTime startingTime = DateTime.Now;
+
+
     void Start()
     {
         _columnToIndex = new Dictionary<int, (int, int)>();
@@ -63,6 +74,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void InitializeNewGame()
     {
+        Debug.Log("TotalGamesPlayed: " + CurrentGamesPlayed);
+
         _gameOver = false;
         BoardState = new GameBoard(4);
         FullColumns = new List<int>();
@@ -89,7 +102,13 @@ public class GameManager : MonoBehaviour
     // Called every frame, handles the game loop.
     void Update()
     {
-        if (_gameOver) InitializeNewGame();
+        if (_gameOver){
+            CurrentGamesPlayed++;
+            if(CurrentGamesPlayed == TargetGamesPlayed && MvMEnabled)
+                WriteMvMResults();
+
+            InitializeNewGame();
+        } 
 
         if (!HumanPlayer)
         {
@@ -175,6 +194,11 @@ public class GameManager : MonoBehaviour
         {
             // win/loss reward/penalty assigning
             bool winningAgent = check == 1;
+
+            if(check == 1)
+                player1WinCount++;
+            else if(check == -1)
+                player2WinCount++;
 
             // Grab Haste Values if enabled
             if(UseHaste){
@@ -395,6 +419,22 @@ public class GameManager : MonoBehaviour
 
         Sigma4Agent agent = player ? Agent1 : Agent2;
         agent.AddReward(reward);
+    }
+
+
+    private static void WriteMvMResults(){
+        DateTime currentTime = DateTime.Now;
+        string writePath = Application.dataPath + "/MvMResults/" + currentTime.ToString().Replace("/", "_").Replace(":", "-").Replace(" ", ".") + ".txt";
+        StreamWriter output = File.CreateText(writePath);
+        output.WriteLine("MvM Results - " + startingTime.ToString());
+        output.WriteLine("Total Games: " + TargetGamesPlayed);
+        output.WriteLine("Total Time: " + currentTime.Subtract(startingTime).ToString());
+        output.WriteLine("Player 1 Wins: " + player1WinCount);
+        output.WriteLine("Player 2 Wins: " + player2WinCount);
+        output.WriteLine("First move wins percentage: " + player1WinCount / TargetGamesPlayed * 100 + "%");
+        output.Close();
+
+        Debug.Log($"Results after {TargetGamesPlayed} games written to: {writePath}.");
     }
 
 

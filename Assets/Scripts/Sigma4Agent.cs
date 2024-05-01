@@ -14,6 +14,7 @@ public class Sigma4Agent : Agent
     public GameManager Game;
     public int player = 0;
 
+
     public override void CollectObservations(VectorSensor sensor)
     {
         int[,,] board = new int[Game.Size, Game.Size, Game.Size];
