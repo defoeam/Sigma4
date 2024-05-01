@@ -43,7 +43,7 @@ public class Sigma4Agent : Agent
     public override void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
     {
         foreach(int col in Game.FullColumns)
-            actionMask.SetActionEnabled(0, col - 1, false);
+            actionMask.SetActionEnabled(0, col, false);
     }
 
 
