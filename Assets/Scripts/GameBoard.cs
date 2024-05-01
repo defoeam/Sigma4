@@ -121,6 +121,29 @@ public class GameBoard
         }
     }
 
+    public (float, float) GetMaxOpportunityScores()
+    {
+        float[] positives = { Array2DMax(positiveWidthScores), 
+            Array2DMax(positiveHeightScores), 
+            Array2DMax(positiveDepthScores),
+            ArrayMax(positiveDiagonalWidthScores),
+            ArrayMax(positiveDiagonalHeightScores),
+            ArrayMax(positiveDiagonalDepthScores),
+            ArrayMax(positiveDiagonalCornerScores),
+        };
+
+        float[] negatives = { Array2DMax(negativeWidthScores),
+            Array2DMax(negativeHeightScores),
+            Array2DMax(negativeDepthScores),
+            ArrayMax(negativeDiagonalWidthScores),
+            ArrayMax(negativeDiagonalHeightScores),
+            ArrayMax(negativeDiagonalDepthScores),
+            ArrayMax(negativeDiagonalCornerScores),
+        };
+
+        return (ArrayMax(positives), ArrayMax(negatives));
+    }
+
     public (float, float) GetAverageOpportunityScores()
     {
         float posSum = 0;
@@ -490,5 +513,34 @@ public class GameBoard
             sum += input[i];
         }
         return (sum, input.Length);
+    }
+
+    public static float Array2DMax(float[,] input)
+    {
+        float max = 0;
+        for (int x = 0; x < input.GetLength(0); x++)
+        {
+            for (int y = 0; y < input.GetLength(1); y++)
+            {
+                if (input[x,y] > max)
+                {
+                    max = input[x,y];
+                }
+            }
+        }
+        return max;
+    }
+
+    public static float ArrayMax(float[] input)
+    {
+        float max = 0;
+        for (int i = 0; i < input.Length; i++)
+        {
+            if (input[i] > max)
+            {
+                max = input[i];
+            }
+        }
+        return max;
     }
 }
