@@ -162,7 +162,7 @@ public class GameManager : MonoBehaviour
         
         // Spawn game piece in scene if enabled.
         if(VisualizeGame){
-            Vector3 spawnLocation = SpawnLoc[index].transform.position + new Vector3(0f, 3.2f, 0f);
+            Vector3 spawnLocation = SpawnLoc[index].transform.position + new Vector3(0f, 3.5f, 0f);
             GameObject newPiece = Instantiate(Turn ? Player1Piece : Player2Piece, spawnLocation, Quaternion.Euler(-90, 0, 0));
             _piecesPlaced.Add(newPiece);
         }
