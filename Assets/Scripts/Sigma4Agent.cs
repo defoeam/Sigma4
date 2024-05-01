@@ -53,7 +53,7 @@ public class Sigma4Agent : Agent
     /// <param name="actions"></param>
     public override void OnActionReceived(ActionBuffers actions)
     {
-        int col = actions.DiscreteActions[0] + 1;
+        int col = actions.DiscreteActions[0];
         Game.AgentAction(col);
     }
 
