@@ -155,14 +155,15 @@ public class GameManager : MonoBehaviour
     /// 
     /// </summary>
     /// <param name="column"></param>
-    public bool PlacePiece(int column)
+    public bool PlacePiece(int index)
     {
-        if (!UpdateBoardState(column))
+        if (!UpdateBoardState(index))
             return false;
         
         // Spawn game piece in scene if enabled.
         if(VisualizeGame){
-            GameObject newPiece = Instantiate(Turn ? Player1Piece : Player2Piece, SpawnLoc[column - 1].transform.position, Quaternion.identity);
+            Vector3 spawnLocation = SpawnLoc[index].transform.position + new Vector3(0f, 3.2f, 0f);
+            GameObject newPiece = Instantiate(Turn ? Player1Piece : Player2Piece, spawnLocation, Quaternion.Euler(-90, 0, 0));
             _piecesPlaced.Add(newPiece);
         }
         
@@ -377,7 +378,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void SetupColumnToIndexDictionary()
     {
-        int currentCol = 1;
+        int currentCol = 0;
         for (int i = 0; i < Size; i++)
         {
             for (int j = 0; j < Size; j++)

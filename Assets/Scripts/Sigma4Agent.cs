@@ -53,11 +53,8 @@ public class Sigma4Agent : Agent
     /// <param name="actions"></param>
     public override void OnActionReceived(ActionBuffers actions)
     {
-        int col = actions.DiscreteActions[0] + 1;
-        
-        wait().ContinueWith(task => {
-            Game.AgentAction(col);
-        }, TaskContinuationOptions.ExecuteSynchronously);   
+        int col = actions.DiscreteActions[0];
+        Game.AgentAction(col);
     }
 
     // Simple wait util that doesn't cause the main thread to pause.

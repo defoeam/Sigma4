@@ -5,15 +5,18 @@ using UnityEngine;
 
 public class InputPole : MonoBehaviour
 {
-    public int columm;
+    private int index;
     public GameManager instance;
 
-
+    private void Awake()
+    {
+        index = int.Parse(gameObject.name);
+    }
 
     void OnMouseDown()
     {
         if (instance.HumanPlayer && instance.Turn == true)
-            instance.PlacePiece(columm);
+            instance.PlacePiece(index);
 
     }
 
