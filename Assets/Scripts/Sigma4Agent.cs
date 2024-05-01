@@ -11,19 +11,8 @@ using System;
 
 public class Sigma4Agent : Agent
 {
-
     public GameManager Game;
     public int player = 0;
-    
-    void Start()
-    {
-        
-    }
-
-    public override void OnEpisodeBegin()
-    {
-        
-    }
 
     public override void CollectObservations(VectorSensor sensor)
     {
@@ -41,7 +30,6 @@ public class Sigma4Agent : Agent
                         else if(board[x,z,y] == -1)
                             board[x,z,y] = 1;
         
-
         // Add observerations
         foreach(int i in board)
             sensor.AddObservation(i);
@@ -65,20 +53,14 @@ public class Sigma4Agent : Agent
     /// <param name="actions"></param>
     public override void OnActionReceived(ActionBuffers actions)
     {
-
         int col = actions.DiscreteActions[0] + 1;
+        
         wait().ContinueWith(task => {
             Game.AgentAction(col);
-
-            
-
-        }, TaskContinuationOptions.ExecuteSynchronously);
-        
-        //Debug.Log("I want to do this col: " + col);
-    
+        }, TaskContinuationOptions.ExecuteSynchronously);   
     }
 
     // Simple wait util that doesn't cause the main thread to pause.
+    // (For some reason, this method doesn't work when two AIs are playing each other)
     private async Task wait() => await Task.Delay(500);
-
 }

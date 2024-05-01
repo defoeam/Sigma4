@@ -578,12 +578,16 @@ MonoBehaviour:
   - {fileID: 1368229509}
   - {fileID: 1277498666}
   - {fileID: 1037711628}
+  VisualizeGame: 1
   Agent1: {fileID: 1766212078}
   Agent2: {fileID: 1303634979}
+  UseRandomForAgent2: 1
   Turn: 1
   Size: 4
   HumanPlayer: 0
   FullColumns: 
+  UseOpportunityScore: 1
+  UseHaste: 1
 --- !u!4 &261905952
 Transform:
   m_ObjectHideFlags: 0
@@ -2640,11 +2644,11 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 9d217a5a87149334d83075f482645342, type: 3}
   m_InferenceDevice: 1
   m_BehaviorType: 0
   m_BehaviorName: Sigma4
-  TeamId: 0
+  TeamId: 1
   m_UseChildSensors: 1
   m_UseChildActuators: 1
   m_ObservableAttributeHandling: 0
@@ -3237,7 +3241,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 9d217a5a87149334d83075f482645342, type: 3}
   m_InferenceDevice: 1
   m_BehaviorType: 0
   m_BehaviorName: Sigma4
