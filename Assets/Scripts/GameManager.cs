@@ -173,8 +173,6 @@ public class GameManager : MonoBehaviour
         if (check != 0)
         {
             // win/loss reward/penalty assigning
-            //Sigma4Agent winningAgent = check == 1 ? Agent1 : Agent2;
-            //Sigma4Agent losingAgent = check == 1 ? Agent2 : Agent1;
             bool winningAgent = check == 1;
 
             // Grab Haste Values if enabled
@@ -182,14 +180,11 @@ public class GameManager : MonoBehaviour
                 float haste = CollectHasteValue();
                 if(haste > 0.8f) Debug.Log("SOME AGENT JUST WON IN LESS THAN 6 MOVES!!!");
                 haste*=hasteMultiplier;
-                //winningAgent.AddReward(haste); losingAgent.AddReward(-1 * haste);
                 AddAgentReward(winningAgent, haste);
                 AddAgentReward(!winningAgent, -1 * haste);
             }
 
             // default win/lose rewards
-            //winningAgent.AddReward(1f);
-            //losingAgent.AddReward(-1f);
             AddAgentReward(winningAgent, 1f);
             AddAgentReward(!winningAgent, -1f);
 
@@ -201,14 +196,12 @@ public class GameManager : MonoBehaviour
                 Agent1.EndEpisode(); Agent2.EndEpisode();
 
             _gameOver = true;
-
         } 
         
         // Tie case 
         if (_piecesPlaced.Count == 64 || FullColumns.Count == 16)
         {
             _gameOver = true;
-            
             Debug.Log("Tie!!");
 
             //Agent1.AddReward(0f);
@@ -233,11 +226,9 @@ public class GameManager : MonoBehaviour
                 BoardState.CalculateOpportunityScores();
 
                 // Add opportunity reward
-                (float, float) opps = BoardState.GetAverageOpportunityScores();
+                (float, float) opps = BoardState.GetMaxOpportunityScores();
                 float opportunity = Turn ? opps.Item1 : opps.Item2;
-                //Debug.Log($"Player {currentAgent.player}'s opp: {opportunity}");
                 AddAgentReward(Turn, opportunity / 2);
-                //currentAgent.AddReward(opportunity / 2);
             }
             
             Turn = !Turn; // Switch turn
@@ -248,7 +239,6 @@ public class GameManager : MonoBehaviour
         }
 
         return true;
-
     }
 
     /// <summary>
