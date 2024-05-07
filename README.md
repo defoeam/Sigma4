@@ -37,5 +37,5 @@ If you plan on training your own model, please follow the required installation 
 For more information on model training or any queries, please reach out to:
 - (Main PoC) Anthony DeFoe, anthony.defoe@ndsu.edu, https://www.linkedin.com/in/amdefoe/
 - Joshua Heeren, joshua.heeren@ndsu.edu, https://www.linkedin.com/in/joshuajheeren/
-- Gavin Kestner, *todo*
-- Jonathan Rivard, *todo*
+- Gavin Kestner, gavin.kestner@ndsu.edu, https://www.linkedin.com/in/gavinkestner/
+- Jonathan Rivard, jonathan.m.rivard@ndsu.edu
