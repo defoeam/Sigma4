@@ -8,6 +8,9 @@ A secondary goal of this project is to collect data on many games played, to tes
 ## Game Overview
 Connect Four 3D is a lesser-known variation of Connect 4. Instead of the typical two-dimensional 6x7 board, 3D Connect 4 consists of a board set up in a 4x4x4 configuration. Similar to Connect 4, each player has their own-colored piece and players alternate in selecting a column on the board to drop their piece into with the goal of getting a four in a row horizontally, vertically, or diagonally in each dimension of the board.
 
+The three major scripts of this project are located in ./Assets/Scripts
+(GameManager, GameBoard, Sigma4Agent)
+
 ## Installation and Setup
 This guide assumes that you have Unity 2022.3.22f1 installed on your machine and have a basic understanding on how to use Unity and the Windows command promt or powershell.
 If you plan on training your own model, please follow the required installation steps for the Unity ml-agents toolkit, including the steps to install the anaconda virtual environment, found here: https://unity-technologies.github.io/ml-agents/Learning-Environment-Design-Agents/
